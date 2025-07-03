@@ -1,32 +1,140 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PLN Ngunut - Info Pemadaman</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cek Pemadaman PLN - Cari ID Pelanggan</title>
   <style>
-    body { font-family: sans-serif; background: #f0f0f0; text-align: center; padding: 40px; }
-    input, button { padding: 10px; font-size: 16px; }
-    button { background: #007bff; color: white; border: none; border-radius: 4px; }
-    .box { background: white; padding: 20px; margin: auto; width: 100%; max-width: 400px; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 3em auto;
+      padding: 0 1em;
+      background: #f0f5ff;
+      color: #003366;
+    }
+    h1 {
+      text-align: center;
+      color: #003366;
+    }
+    label, input, button {
+      display: block;
+      width: 100%;
+      font-size: 1.2em;
+      margin: 1em 0;
+    }
+    input {
+      padding: 0.5em;
+      border: 2px solid #ffcc00;
+      border-radius: 5px;
+      font-weight: bold;
+      color: #003366;
+    }
+    input:focus {
+      outline: none;
+      border-color: #003366;
+      background-color: #ffffcc;
+    }
+    button {
+      background-color: #003366;
+      color: #ffcc00;
+      border: none;
+      padding: 0.7em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #ffcc00;
+      color: #003366;
+    }
+    #result {
+      background: white;
+      border: 2px solid #003366;
+      padding: 1em;
+      border-radius: 5px;
+      min-height: 80px;
+      color: #003366;
+      font-weight: 600;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 1em auto;
+      max-width: 120px;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Cari Informasi Pemadaman</h2>
-    <input type="text" id="query" placeholder="Masukkan ID Pelanggan" />
-    <br><br>
-    <button onclick="cari()">Cari</button>
-  </div>
+
+  <img src="pln.png" alt="Logo PLN" class="logo" />
+
+  <h1>Cek Pemadaman Berdasarkan ID Pelanggan</h1>
+
+  <label for="idPelanggan">Masukkan ID Pelanggan:</label>
+  <input type="text" id="idPelanggan" placeholder="Contoh: 12345" autocomplete="off" />
+  <button id="searchBtn">Cari</button>
+
+  <div id="result"></div>
+
   <script>
-    function cari() {
-      const input = document.getElementById("query").value.trim();
-      if (input) {
-        window.location.href = `hasil.html?query=${encodeURIComponent(input)}`;
-      } else {
-        alert("Masukkan ID pelanggan.");
+    async function loadData() {
+      try {
+        const response = await fetch('data.html');
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const table = doc.querySelector('#data-pelanggan');
+        if (!table) return [];
+
+        const rows = [...table.querySelectorAll('tbody tr')];
+        return rows.map(row => {
+          const cells = row.querySelectorAll('td');
+          return {
+            id: cells[0].textContent.trim(),
+            nama: cells[1].textContent.trim(),
+            waktu: cells[2].textContent.trim()
+          };
+        });
+      } catch (error) {
+        console.error('Gagal memuat data:', error);
+        return [];
       }
     }
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const idCari = document.getElementById('idPelanggan').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Mencari...';
+
+      if (!idCari) {
+        resultDiv.textContent = 'Masukkan ID Pelanggan terlebih dahulu.';
+        return;
+      }
+
+      const data = await loadData();
+
+      const ditemukan = data.find(d => d.id === idCari);
+
+      if (ditemukan) {
+        resultDiv.innerHTML = `
+          <p><strong>ID Pelanggan:</strong> ${ditemukan.id}</p>
+          <p><strong>Nama:</strong> ${ditemukan.nama}</p>
+          <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
+        `;
+      } else {
+        resultDiv.textContent = 'ID Pelanggan tidak ditemukan atau tidak terdampak pemadaman.';
+      }
+    });
+
+    // Tekan Enter di input langsung cari
+    document.getElementById('idPelanggan').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('searchBtn').click();
+      }
+    });
   </script>
+
 </body>
 </html>

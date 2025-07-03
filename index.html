@@ -58,7 +58,7 @@
       border: 2px solid #003366;
       padding: 1em;
       border-radius: 5px;
-      min-height: 80px;
+      min-height: 100px;
       font-weight: 600;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
@@ -104,17 +104,21 @@
         id: cols[0]?.trim(),
         nomorMeter: cols[1]?.trim(),
         nama: cols[2]?.trim(),
-        waktu: cols[3]?.trim()
+        tarif: cols[3]?.trim(),
+        daya: cols[4]?.trim(),
+        waktu: cols[5]?.trim()
       };
     });
   }
 
   function sensorAngka(str) {
+    if (!str) return '';
     if (str.length <= 2) return '*'.repeat(str.length);
     return str[0] + '*'.repeat(str.length - 2) + str[str.length - 1];
   }
 
   function sensorNama(nama) {
+    if (!nama) return '';
     return nama.split(' ').map(kata => {
       if (kata.length <= 2) return kata[0] + '*';
       return kata[0] + '*'.repeat(kata.length - 2) + kata[kata.length - 1];
@@ -156,7 +160,9 @@
           <p><strong>ID Pelanggan:</strong> ${sensorAngka(ditemukan.id)}</p>
           <p><strong>Nomor Meter:</strong> ${sensorAngka(ditemukan.nomorMeter)}</p>
           <p><strong>Nama:</strong> ${sensorNama(ditemukan.nama)}</p>
-          <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
+          <p><strong>Tarif:</strong> ${ditemukan.tarif || '-'}</p>
+          <p><strong>Daya:</strong> ${ditemukan.daya || '-'}</p>
+          <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu || '-'}</p>
         `;
       } else {
         resultDiv.style.backgroundColor = '#f8d7da';

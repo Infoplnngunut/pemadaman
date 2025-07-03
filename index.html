@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLN Ngunut - Info Pemadaman</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; text-align: center; padding: 40px; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { background: #007bff; color: white; border: none; border-radius: 4px; }
+    .box { background: white; padding: 20px; margin: auto; width: 100%; max-width: 400px; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Cari Informasi Pemadaman</h2>
+    <input type="text" id="query" placeholder="Masukkan ID Pelanggan" />
+    <br><br>
+    <button onclick="cari()">Cari</button>
+  </div>
+  <script>
+    function cari() {
+      const input = document.getElementById("query").value.trim();
+      if (input) {
+        window.location.href = `hasil.html?query=${encodeURIComponent(input)}`;
+      } else {
+        alert("Masukkan ID pelanggan.");
+      }
+    }
+  </script>
+</body>
+</html>

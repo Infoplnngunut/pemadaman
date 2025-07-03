@@ -19,11 +19,8 @@
       border-bottom: 3px solid #ffcc00;
       padding-bottom: 0.5em;
     }
-    header h1 {
-      margin: 0;
-      font-size: 1.6em;
-      font-weight: bold;
-      color: #003366;
+    header h1, header h2 {
+      margin: 0.2em 0;
     }
     label, input, button {
       display: block;
@@ -78,7 +75,7 @@
   <header>
     <img src="pln.png" alt="Logo PLN" class="logo" />
     <h1>PT PLN (Persero) ULP Ngunut</h1>
-    <h1>Informasi Terdampak Pemadaman Terencana</h1>
+    <h2>Informasi Terdampak Pemadaman Terencana</h2>
   </header>
 
   <label for="idNomor">Masukkan ID Pelanggan atau Nomor Meter:</label>
@@ -88,8 +85,8 @@
   <div id="result"></div>
 
   <section id="info-terencana" style="margin-top:2em; padding:1em; border: 2px solid #ffcc00; border-radius:5px; background:#fff8cc; color:#003366;">
-    <h2 style="white-space: pre-line; text-align: center;">
-      Informasi Terkait Pemadaman Terencana
+    <h2 style="text-align: center;">
+      Informasi Pemadaman Terencana
     </h2>
     <p style="font-weight: normal; text-align: justify; margin-top: 1em;">
       Pemadaman listrik terencana dilakukan dalam rangka pemeliharaan jaringan dan peningkatan kualitas layanan. 
@@ -99,7 +96,7 @@
 
 <script>
   const encodedData = `
-  PHRyPjx0ZD4xMjM0NTwvdGQ+PHRkPjk4NzY1NDMyMTwvdGQ+PHRkPkFuZGk8L3RkPjx0ZD4yMDI1LTA3LTAzIDA4OjAwIC0gMTA6MDA8L3RkPjwvdHI+PHRyPjx0ZD42Nzg5MDwvdGQ+PHRkPjEyMzQ1Njc4OTwvdGQ+PHRkPkJ1ZGk8L3RkPjx0ZD4yMDI1LTA3LTAzIDA5OjAwIC0gMTE6MDA8L3RkPjwvdHI+PHRyPjx0ZD4xMTIyMzwvdGQ+PHRkPjExMTIyMjMzMzwvdGQ+PHRkPkNpdHJhPC90ZD48dGQ+MjAyNS0wNy0wMyAwNzozMCAtIDA5OjMwPC90ZD48L3RyPg==
+  PHRyPjx0ZD4xMjM0NTwvdGQ+PHRkPjk4NzY1NDMyMTwvdGQ+PHRkPkFuZGkgU2V0aWF3YW48L3RkPjx0ZD4yMDI1LTA3LTAzIDA4OjAwIC0gMTA6MDA8L3RkPjwvdHI+PHRyPjx0ZD42Nzg5MDwvdGQ+PHRkPjEyMzQ1Njc4OTwvdGQ+PHRkPkJ1ZGkgU2FudG9zbzwvdGQ+PHRkPjIwMjUtMDctMDMgMDk6MDAgLSAxMTowMDwvdGQ+PC90cj48dHI+PHRkPjExMjIzPC90ZD48dGQ+MTExMjIyMzMzPC90ZD48dGQ+Q2l0cmEgV2lqYXlhPC90ZD48dGQ+MjAyNS0wNy0wMyAwNzozMCAtIDA5OjMwPC90ZD48L3RyPg==
   `.replace(/\s/g, '');
 
   function decodeData() {
@@ -127,13 +124,18 @@
   }
 
   function sensorAngka(str) {
-    if (str.length <= 6) return '*'.repeat(str.length);
-    return str.slice(0, 3) + '*'.repeat(str.length - 6) + str.slice(-3);
+    if (str.length <= 2) return '*'.repeat(str.length);
+    return str[0] + '*'.repeat(str.length - 2) + str[str.length - 1];
   }
 
   function sensorNama(nama) {
-    if (nama.length <= 2) return nama[0] + '*';
-    return nama[0] + '*'.repeat(nama.length - 2) + nama[nama.length - 1];
+    return nama
+      .split(' ')
+      .map(kata => {
+        if (kata.length <= 2) return kata[0] + '*';
+        return kata[0] + '*'.repeat(kata.length - 2) + kata[kata.length - 1];
+      })
+      .join(' ');
   }
 
   document.getElementById('searchBtn').addEventListener('click', () => {

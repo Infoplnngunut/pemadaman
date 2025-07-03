@@ -3,18 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cek Pemadaman PLN - Cari ID Pelanggan</title>
+  <title>Cek Pemadaman PLN - Cari ID Pelanggan / Nomor Meter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 600px;
-      margin: 3em auto;
+      margin: 2em auto 3em auto;
       padding: 0 1em;
       background: #f0f5ff;
       color: #003366;
     }
-    h1 {
+    header {
       text-align: center;
+      margin-bottom: 1em;
+      border-bottom: 3px solid #ffcc00;
+      padding-bottom: 0.5em;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.6em;
+      font-weight: bold;
       color: #003366;
     }
     label, input, button {
@@ -67,12 +75,13 @@
 </head>
 <body>
 
-  <img src="pln.png" alt="Logo PLN" class="logo" />
+  <header>
+    <img src="pln.png" alt="Logo PLN" class="logo" />
+    <h1>PT PLN (Persero) ULP Ngunut</h1>
+  </header>
 
-  <h1>Cek Pemadaman Berdasarkan ID Pelanggan</h1>
-
-  <label for="idPelanggan">Masukkan ID Pelanggan:</label>
-  <input type="text" id="idPelanggan" placeholder="Contoh: 12345" autocomplete="off" />
+  <label for="idNomor">Masukkan ID Pelanggan atau Nomor Meter:</label>
+  <input type="text" id="idNomor" placeholder="Contoh: 12345 atau 987654321" autocomplete="off" />
   <button id="searchBtn">Cari</button>
 
   <div id="result"></div>
@@ -92,8 +101,9 @@
           const cells = row.querySelectorAll('td');
           return {
             id: cells[0].textContent.trim(),
-            nama: cells[1].textContent.trim(),
-            waktu: cells[2].textContent.trim()
+            nomorMeter: cells[1].textContent.trim(),
+            nama: cells[2].textContent.trim(),
+            waktu: cells[3].textContent.trim()
           };
         });
       } catch (error) {
@@ -103,32 +113,33 @@
     }
 
     document.getElementById('searchBtn').addEventListener('click', async () => {
-      const idCari = document.getElementById('idPelanggan').value.trim();
+      const input = document.getElementById('idNomor').value.trim();
       const resultDiv = document.getElementById('result');
       resultDiv.textContent = 'Mencari...';
 
-      if (!idCari) {
-        resultDiv.textContent = 'Masukkan ID Pelanggan terlebih dahulu.';
+      if (!input) {
+        resultDiv.textContent = 'Masukkan ID Pelanggan atau Nomor Meter terlebih dahulu.';
         return;
       }
 
       const data = await loadData();
 
-      const ditemukan = data.find(d => d.id === idCari);
+      // Cari berdasarkan ID pelanggan atau Nomor Meter (case sensitive)
+      const ditemukan = data.find(d => d.id === input || d.nomorMeter === input);
 
       if (ditemukan) {
         resultDiv.innerHTML = `
           <p><strong>ID Pelanggan:</strong> ${ditemukan.id}</p>
+          <p><strong>Nomor Meter:</strong> ${ditemukan.nomorMeter}</p>
           <p><strong>Nama:</strong> ${ditemukan.nama}</p>
           <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
         `;
       } else {
-        resultDiv.textContent = 'ID Pelanggan tidak ditemukan atau tidak terdampak pemadaman.';
+        resultDiv.textContent = 'Data tidak ditemukan atau tidak terdampak pemadaman.';
       }
     });
 
-    // Tekan Enter di input langsung cari
-    document.getElementById('idPelanggan').addEventListener('keydown', e => {
+    document.getElementById('idNomor').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         e.preventDefault();
         document.getElementById('searchBtn').click();

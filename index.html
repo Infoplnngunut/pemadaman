@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cek Pemadaman PLN - Cari ID Pelanggan / Nomor Meter</title>
+  <title>Cek Pemadaman PLN - ULP Ngunut</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -86,26 +86,21 @@
 
   <div id="result"></div>
 
-  <section id="info-terencana" style="margin-top:2em; padding:1em; border: 2px solid #ffcc00; border-radius:5px; background:#fff8cc; color:#003366; font-weight:600;">
-    <h2>Informasi Pemadaman Terencana</h2>
-    <p>
-      Pemadaman listrik ini dilakukan untuk pemeliharaan jaringan dan peningkatan kualitas layanan.<br />
-      Mohon maaf atas ketidaknyamanan yang ditimbulkan.<br />
-      Untuk info lebih lanjut, silakan hubungi kantor PLN ULP Ngunut atau kunjungi website resmi kami.
+  <section id="info-terencana" style="margin-top:2em; padding:1em; border: 2px solid #ffcc00; border-radius:5px; background:#fff8cc; color:#003366;">
+    <h2 style="white-space: pre-line; text-align: center;">
+      PT PLN (Persero) ULP Ngunut<br />Informasi Pemadaman Terencana
+    </h2>
+    <p style="font-weight: normal; text-align: justify; margin-top: 1em;">
+      Pemadaman listrik terencana ini dilakukan dalam rangka pemeliharaan jaringan dan peningkatan kualitas layanan. 
+      Mohon maaf atas ketidaknyamanan yang ditimbulkan. Apabila pekerjaan selesai sebelum waktu yang telah ditentukan, maka listrik akan dinormalkan kembali.
     </p>
   </section>
 
 <script>
-  // Contoh data base64 (encoded HTML table rows)
-  // Nanti kamu bisa generate base64 dari data tabel lengkap dan simpan di file data.html
   const encodedData = `
-PHRyPjx0ZD4xMjM0NTwvdGQ+PHRkPjk4NzY1NDMyMTwvdGQ+PHRkPkFuZGk8L3RkPjx0ZD4yMDI1LTA3LTAzIDA4OjAw
-IC0gMTA6MDA8L3RkPjwvdHI+Cjx0cj48dGQ+Njc4OTA8L3RkPjx0ZD4xMjM0NTY3ODk8L3RkPjx0ZD5CdWRpPC90ZD48
-dGQ+MjAyNS0wNy0wMyAwOTowMCAtIDExOjAwPC90ZD48L3RyPgo8dHI+PHRkPjExMjIzPC90ZD48dGQ+MTExMjIyMzM8
-L3RkPjx0ZD5DaXRyYTwvdGQ+PHRkPjIwMjUtMDctMDMgMDc6MzAgLSAwOTozMDwvdGQ+PC90cj4=
+  PHRyPjx0ZD4xMjM0NTwvdGQ+PHRkPjk4NzY1NDMyMTwvdGQ+PHRkPkFuZGk8L3RkPjx0ZD4yMDI1LTA3LTAzIDA4OjAwIC0gMTA6MDA8L3RkPjwvdHI+PHRyPjx0ZD42Nzg5MDwvdGQ+PHRkPjEyMzQ1Njc4OTwvdGQ+PHRkPkJ1ZGk8L3RkPjx0ZD4yMDI1LTA3LTAzIDA5OjAwIC0gMTE6MDA8L3RkPjwvdHI+PHRyPjx0ZD4xMTIyMzwvdGQ+PHRkPjExMTIyMjMzMzwvdGQ+PHRkPkNpdHJhPC90ZD48dGQ+MjAyNS0wNy0wMyAwNzozMCAtIDA5OjMwPC90ZD48L3RyPg==
   `.replace(/\s/g, '');
 
-  // Fungsi decode base64 dan parsing ke objek data
   function decodeData() {
     const decodedStr = atob(encodedData);
     const parser = new DOMParser();
@@ -127,9 +122,17 @@ L3RkPjx0ZD5DaXRyYTwvdGQ+PHRkPjIwMjUtMDctMDMgMDc6MzAgLSAwOTozMDwvdGQ+PC90cj4=
   }
 
   function isValidInput(input) {
-    // Hanya huruf dan angka, minimal 5 karakter
-    const regex = /^[a-zA-Z0-9]{5,}$/;
-    return regex.test(input);
+    return /^[a-zA-Z0-9]{5,}$/.test(input);
+  }
+
+  function sensorAngka(str) {
+    if (str.length <= 6) return '*'.repeat(str.length);
+    return str.slice(0, 3) + '*'.repeat(str.length - 6) + str.slice(-3);
+  }
+
+  function sensorNama(nama) {
+    if (nama.length <= 2) return nama[0] + '*';
+    return nama[0] + '*'.repeat(nama.length - 2) + nama[nama.length - 1];
   }
 
   document.getElementById('searchBtn').addEventListener('click', () => {
@@ -153,9 +156,9 @@ L3RkPjx0ZD5DaXRyYTwvdGQ+PHRkPjIwMjUtMDctMDMgMDc6MzAgLSAwOTozMDwvdGQ+PC90cj4=
 
     if (ditemukan) {
       resultDiv.innerHTML = `
-        <p><strong>ID Pelanggan:</strong> ${ditemukan.id}</p>
-        <p><strong>Nomor Meter:</strong> ${ditemukan.nomorMeter}</p>
-        <p><strong>Nama:</strong> ${ditemukan.nama}</p>
+        <p><strong>ID Pelanggan:</strong> ${sensorAngka(ditemukan.id)}</p>
+        <p><strong>Nomor Meter:</strong> ${sensorAngka(ditemukan.nomorMeter)}</p>
+        <p><strong>Nama:</strong> ${sensorNama(ditemukan.nama)}</p>
         <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
       `;
     } else {
@@ -163,7 +166,6 @@ L3RkPjx0ZD5DaXRyYTwvdGQ+PHRkPjIwMjUtMDctMDMgMDc6MzAgLSAwOTozMDwvdGQ+PC90cj4=
     }
   });
 
-  // Support pencarian dengan Enter key
   document.getElementById('idNomor').addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();

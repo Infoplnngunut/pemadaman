@@ -84,42 +84,29 @@
   <div id="result"></div>
 
   <section id="info-terencana" style="margin-top:2em; padding:1em; border: 2px solid #ffcc00; border-radius:5px; background:#fff8cc; color:#003366;">
-    <h2 style="text-align: center;">
-      Informasi Pemadaman Terencana
-    </h2>
-    <p style="font-weight: normal; text-align: justify; margin-top: 1em;">
+    <h2 style="text-align: center;">Informasi Pemadaman Terencana</h2>
+    <p style="text-align: justify;">
       Pemadaman listrik terencana dilakukan dalam rangka pemeliharaan jaringan dan peningkatan kualitas layanan. 
       Mohon maaf atas ketidaknyamanan yang ditimbulkan. Apabila pekerjaan selesai sebelum waktu yang telah ditentukan, maka listrik akan dinormalkan kembali.
     </p>
   </section>
 
 <script>
-  const encodedData = `
-  PHRyPjx0ZD4xMjM0NTwvdGQ+PHRkPjk4NzY1NDMyMTwvdGQ+PHRkPkFuZGkgU2V0aWF3YW48L3RkPjx0ZD4yMDI1LTA3LTAzIDA4OjAwIC0gMTA6MDA8L3RkPjwvdHI+PHRyPjx0ZD42Nzg5MDwvdGQ+PHRkPjEyMzQ1Njc4OTwvdGQ+PHRkPkJ1ZGkgU2FudG9zbzwvdGQ+PHRkPjIwMjUtMDctMDMgMDk6MDAgLSAxMTowMDwvdGQ+PC90cj48dHI+PHRkPjExMjIzPC90ZD48dGQ+MTExMjIyMzMzPC90ZD48dGQ+Q2l0cmEgV2lqYXlhPC90ZD48dGQ+MjAyNS0wNy0wMyAwNzozMCAtIDA5OjMwPC90ZD48L3RyPg==
-  `.replace(/\s/g, '');
+  const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2MfnlYP2CP30zS1HT_2osVQZ2TazolhWWxLVnjtQZlReai-ldrznjzkesLaJ3dzQcWKY3j3YjAmNy/pub?output=csv';
 
-  function decodeData() {
-    const decodedStr = atob(encodedData);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<table>${decodedStr}</table>`, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const data = [];
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length === 4) {
-        data.push({
-          id: cells[0].textContent.trim(),
-          nomorMeter: cells[1].textContent.trim(),
-          nama: cells[2].textContent.trim(),
-          waktu: cells[3].textContent.trim()
-        });
-      }
+  async function fetchDataFromSheet() {
+    const response = await fetch(sheetUrl);
+    const csv = await response.text();
+    const rows = csv.trim().split('\n').slice(1); // Hilangkan header
+    return rows.map(row => {
+      const cols = row.split(',');
+      return {
+        id: cols[0]?.trim(),
+        nomorMeter: cols[1]?.trim(),
+        nama: cols[2]?.trim(),
+        waktu: cols[3]?.trim()
+      };
     });
-    return data;
-  }
-
-  function isValidInput(input) {
-    return /^[a-zA-Z0-9]{5,}$/.test(input);
   }
 
   function sensorAngka(str) {
@@ -128,16 +115,17 @@
   }
 
   function sensorNama(nama) {
-    return nama
-      .split(' ')
-      .map(kata => {
-        if (kata.length <= 2) return kata[0] + '*';
-        return kata[0] + '*'.repeat(kata.length - 2) + kata[kata.length - 1];
-      })
-      .join(' ');
+    return nama.split(' ').map(kata => {
+      if (kata.length <= 2) return kata[0] + '*';
+      return kata[0] + '*'.repeat(kata.length - 2) + kata[kata.length - 1];
+    }).join(' ');
   }
 
-  document.getElementById('searchBtn').addEventListener('click', () => {
+  function isValidInput(input) {
+    return /^[a-zA-Z0-9]{5,}$/.test(input);
+  }
+
+  document.getElementById('searchBtn').addEventListener('click', async () => {
     const input = document.getElementById('idNomor').value.trim();
     const resultDiv = document.getElementById('result');
 
@@ -155,22 +143,30 @@
       return;
     }
 
-    const data = decodeData();
-    const ditemukan = data.find(d => d.id === input || d.nomorMeter === input);
+    resultDiv.textContent = 'Memuat data...';
 
-    if (ditemukan) {
-      resultDiv.style.backgroundColor = '#d4edda'; // Hijau muda
-      resultDiv.style.color = '#155724'; // Hijau tua
-      resultDiv.innerHTML = `
-        <p><strong>ID Pelanggan:</strong> ${sensorAngka(ditemukan.id)}</p>
-        <p><strong>Nomor Meter:</strong> ${sensorAngka(ditemukan.nomorMeter)}</p>
-        <p><strong>Nama:</strong> ${sensorNama(ditemukan.nama)}</p>
-        <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
-      `;
-    } else {
-      resultDiv.style.backgroundColor = '#f8d7da'; // Merah kusam
-      resultDiv.style.color = '#721c24'; // Merah tua
-      resultDiv.textContent = 'Data tidak ditemukan atau tidak terdampak pemadaman.';
+    try {
+      const data = await fetchDataFromSheet();
+      const ditemukan = data.find(d => d.id === input || d.nomorMeter === input);
+
+      if (ditemukan) {
+        resultDiv.style.backgroundColor = '#d4edda';
+        resultDiv.style.color = '#155724';
+        resultDiv.innerHTML = `
+          <p><strong>ID Pelanggan:</strong> ${sensorAngka(ditemukan.id)}</p>
+          <p><strong>Nomor Meter:</strong> ${sensorAngka(ditemukan.nomorMeter)}</p>
+          <p><strong>Nama:</strong> ${sensorNama(ditemukan.nama)}</p>
+          <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu}</p>
+        `;
+      } else {
+        resultDiv.style.backgroundColor = '#f8d7da';
+        resultDiv.style.color = '#721c24';
+        resultDiv.textContent = 'Data tidak ditemukan atau tidak terdampak pemadaman.';
+      }
+    } catch (e) {
+      resultDiv.style.backgroundColor = '#f8d7da';
+      resultDiv.style.color = '#721c24';
+      resultDiv.textContent = 'Gagal mengambil data. Coba lagi nanti.';
     }
   });
 

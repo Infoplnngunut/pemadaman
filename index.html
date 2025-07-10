@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -97,7 +98,7 @@
   async function fetchDataFromSheet() {
     const response = await fetch(sheetUrl);
     const csv = await response.text();
-    const rows = csv.trim().split('\n').slice(1); // Hilangkan header
+    const rows = csv.trim().split('\n').slice(1);
     return rows.map(row => {
       const cols = row.split(',');
       return {
@@ -106,7 +107,9 @@
         nama: cols[2]?.trim(),
         tarif: cols[3]?.trim(),
         daya: cols[4]?.trim(),
-        waktu: cols[5]?.trim()
+        gardu: cols[5]?.trim(),
+        tiang: cols[6]?.trim(),
+        waktu: cols[7]?.trim()
       };
     });
   }
@@ -162,6 +165,8 @@
           <p><strong>Nama:</strong> ${sensorNama(ditemukan.nama)}</p>
           <p><strong>Tarif:</strong> ${ditemukan.tarif || '-'}</p>
           <p><strong>Daya:</strong> ${ditemukan.daya || '-'}</p>
+          <p><strong>Gardu:</strong> ${ditemukan.gardu || '-'}</p>
+          <p><strong>Tiang:</strong> ${ditemukan.tiang || '-'}</p>
           <p><strong>Waktu Pemadaman:</strong> ${ditemukan.waktu || '-'}</p>
         `;
       } else {
